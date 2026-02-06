@@ -1,6 +1,8 @@
 # Project: [YOUR PROJECT NAME]
 
-> **CUSTOMIZE**: Replace this file with your project's details. This file is read by Claude Code at the start of every session.
+> **CUSTOMIZE**: Replace this file with your project's details.
+> This file is read by Claude Code at the start of every session.
+> For autonomous loop mode, also create AGENTS.md at root (see templates/AGENTS.md).
 
 ## Overview
 
@@ -36,7 +38,10 @@ npm run lint         # Run linter
 npm run validate     # Full validation: lint + test + build
 ```
 
-## Development Workflow
+## Development Modes
+
+### Interactive Mode (Cursor / Claude Code session)
+Standard agentic development with human in the loop:
 
 1. **Plan** - Use `planner` agent for features >1 file
 2. **TDD** - Write tests first, then implement (use `tdd-guide` agent)
@@ -44,9 +49,26 @@ npm run validate     # Full validation: lint + test + build
 4. **Security** - Use `security-reviewer` for auth/API/input code
 5. **Commit** - Follow conventional commits (`feat:`, `fix:`, etc.)
 
-## Rules
+### Autonomous Mode (loop.sh)
+Headless Claude Code running in a bash loop:
 
-See `rules/` for detailed guidelines:
+```bash
+./loop.sh plan        # Generate IMPLEMENTATION_PLAN.md from specs/
+./loop.sh build       # Execute tasks from IMPLEMENTATION_PLAN.md
+./loop.sh plan-work   # Hybrid: plan one task, implement, repeat
+```
+
+Key files for autonomous mode:
+- `AGENTS.md` - Operational brief (always read first)
+- `specs/*.md` - Requirements and feature specs
+- `prompts/PROMPT_plan.md` - Planning prompt template
+- `prompts/PROMPT_build.md` - Build prompt template
+- `IMPLEMENTATION_PLAN.md` - Generated task list (source of truth)
+
+## Agents & Rules
+
+See `agents/` for subagent definitions and `rules/` for coding guidelines:
+
 - `rules/coding-style.md` - Code conventions
 - `rules/testing.md` - TDD workflow
 - `rules/security.md` - Security checks

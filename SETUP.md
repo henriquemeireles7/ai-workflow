@@ -1,6 +1,6 @@
 # Setup Guide
 
-Step-by-step guide to integrate this AI workflow template into your project.
+Step-by-step guide to integrate the AI workflow template into your project.
 
 ---
 
@@ -12,11 +12,18 @@ Step-by-step guide to integrate this AI workflow template into your project.
 # From your project root
 mkdir -p .ai
 
-# Copy workflow files
+# Copy interactive mode files
 cp -r /path/to/ai-workflow/agents/ .ai/agents/
 cp -r /path/to/ai-workflow/rules/ .ai/rules/
 cp -r /path/to/ai-workflow/skills/ .ai/skills/
 cp -r /path/to/ai-workflow/templates/ .ai/templates/
+
+# Copy autonomous mode files
+cp /path/to/ai-workflow/loop.sh ./loop.sh
+chmod +x loop.sh
+cp -r /path/to/ai-workflow/prompts/ ./prompts/
+cp -r /path/to/ai-workflow/specs/ ./specs/
+mkdir -p sessions/
 ```
 
 ### Option B: Use as Git submodule
@@ -39,7 +46,7 @@ git submodule update --remote .ai
 
 ## Step 2: Configure Your AI Tool
 
-### For Claude Code
+### For Claude Code (Interactive Mode)
 
 Copy and customize the `CLAUDE.md` file:
 
@@ -53,7 +60,25 @@ Edit `CLAUDE.md` to include:
 - Project-specific conventions
 - File structure overview
 
-Claude Code will automatically read this file at the start of every session.
+Claude Code reads this file at the start of every session.
+
+### For Claude Code (Autonomous Mode)
+
+Create the operational brief:
+
+```bash
+cp .ai/templates/AGENTS.md ./AGENTS.md
+```
+
+Edit `AGENTS.md` with:
+- Project name and description
+- Tech stack
+- Project structure
+- Key commands (dev, test, lint, build)
+- Architecture rules
+- Current status
+
+Keep AGENTS.md **under 80 lines** - this is prime context window space.
 
 ### For Cursor
 
@@ -76,7 +101,65 @@ Most AI coding tools support a system prompt or rules file. Adapt the content fr
 
 ---
 
-## Step 3: Customize Agents
+## Step 3: Set Up Autonomous Mode
+
+### 3a. Prerequisites
+
+```bash
+# Install Claude Code CLI
+npm install -g @anthropic-ai/claude-code
+
+# Verify
+claude --version
+```
+
+### 3b. Write Your First Spec
+
+```bash
+cp specs/EXAMPLE_SPEC.md specs/my-feature.md
+```
+
+Edit the spec with real requirements using the Given/When/Then format for acceptance criteria.
+
+### 3c. Create AGENTS.md
+
+```bash
+cp templates/AGENTS.md ./AGENTS.md
+```
+
+This is the first file Claude reads every iteration. It must contain:
+- What the project is
+- How to run it (commands)
+- Code style rules
+- Architecture constraints
+
+### 3d. Test the Loop
+
+```bash
+# Dry run: generate a plan
+./loop.sh plan
+
+# Review the plan
+cat IMPLEMENTATION_PLAN.md
+
+# If plan looks good, execute it
+./loop.sh build
+```
+
+### 3e. Add to .gitignore
+
+Add these to your `.gitignore`:
+
+```
+# Autonomous loop session logs
+sessions/
+sessions/*.log
+sessions/*.md
+```
+
+---
+
+## Step 4: Customize Agents
 
 Each agent in `agents/` has sections marked with:
 
@@ -95,7 +178,7 @@ Go through each agent and:
 
 ---
 
-## Step 4: Add Project-Specific Skills
+## Step 5: Add Project-Specific Skills
 
 Create skills for your project's domain:
 
@@ -115,12 +198,6 @@ cat > .ai/skills/nextjs/SKILL.md << 'EOF'
 - layout.tsx - Shared layout
 - loading.tsx - Loading UI
 - error.tsx - Error boundary
-- not-found.tsx - 404 page
-
-## Data Fetching
-- Use React Server Components for data fetching
-- Cache with `unstable_cache` or `fetch` cache options
-- Revalidate with `revalidatePath` or `revalidateTag`
 EOF
 ```
 
@@ -132,19 +209,28 @@ Common skills to add:
 
 ---
 
-## Step 5: Set Up Task Tracking
+## Step 6: Write Specs for Autonomous Mode
 
-Use the `templates/PROJECT-TASKS.md` template for your features:
+The autonomous planner reads all files in `specs/` to build the implementation plan. Good specs include:
+
+1. **Clear requirements** - Specific, testable ("Users can log in with email/password")
+2. **Acceptance criteria** - Given/When/Then format
+3. **Priority** - P0/P1/P2/P3
+4. **Out of scope** - What NOT to build
+
+Example structure:
 
 ```bash
-cp .ai/templates/PROJECT-TASKS.md docs/tasks/feature-name.md
+specs/
+├── user-auth.md         # Authentication feature
+├── user-profiles.md     # Profile management
+├── api-endpoints.md     # REST API spec
+└── database-schema.md   # Data model
 ```
-
-Edit the task file with your feature's phases and tasks.
 
 ---
 
-## Step 6: Configure Git Hooks (Optional)
+## Step 7: Configure Git Hooks (Optional)
 
 Add pre-commit validation:
 
@@ -166,10 +252,9 @@ Add to `package.json`:
 
 ---
 
-## Step 7: Verify Setup
+## Step 8: Verify Setup
 
-Run this checklist:
-
+### Interactive Mode Checklist
 - [ ] `CLAUDE.md` or `.cursorrules` exists at project root
 - [ ] Agents are accessible to your AI tool
 - [ ] Rules are loaded (check AI tool's context)
@@ -177,40 +262,75 @@ Run this checklist:
 - [ ] Git workflow rules match your team's process
 - [ ] Security rules are appropriate for your domain
 
+### Autonomous Mode Checklist
+- [ ] `claude` CLI is installed and working
+- [ ] `AGENTS.md` exists at project root (under 80 lines)
+- [ ] `loop.sh` is executable (`chmod +x loop.sh`)
+- [ ] `prompts/` folder has all three prompt files
+- [ ] At least one spec exists in `specs/`
+- [ ] `sessions/` is in `.gitignore`
+- [ ] Git branch is set up for the feature
+
 ---
 
 ## Directory Structure Reference
 
-After setup, your project should look like:
+After full setup, your project should look like:
 
 ```
 your-project/
-├── .ai/                    # AI workflow configuration
-│   ├── agents/             # Subagent definitions
-│   ├── rules/              # AI behavior rules
-│   ├── skills/             # Knowledge modules
-│   └── templates/          # Document templates
-├── CLAUDE.md               # Claude Code entry point
-├── .cursorrules            # Cursor IDE rules
-├── src/                    # Your source code
-├── tests/                  # Your tests
+├── .ai/                       # AI workflow configuration
+│   ├── agents/                # Subagent definitions
+│   ├── rules/                 # AI behavior rules
+│   ├── skills/                # Knowledge modules
+│   └── templates/             # Document templates
+│
+├── loop.sh                    # Autonomous loop script
+├── prompts/                   # Prompt templates
+│   ├── PROMPT_plan.md
+│   ├── PROMPT_build.md
+│   └── PROMPT_plan_work.md
+├── specs/                     # Feature requirements
+├── sessions/                  # Session logs (gitignored)
+│
+├── AGENTS.md                  # Operational brief (autonomous mode)
+├── IMPLEMENTATION_PLAN.md     # Generated task list (autonomous mode)
+├── CLAUDE.md                  # Claude Code entry point
+├── .cursorrules               # Cursor IDE rules
+│
+├── src/                       # Your source code
+├── tests/                     # Your tests
 └── ...
 ```
 
 ---
 
-## Updating the Template
+## Autonomous Loop Modes
 
-When you improve your workflow, push changes back to your template repo:
+| Mode | Command | When to Use |
+|------|---------|-------------|
+| **plan** | `./loop.sh plan` | You have specs and want a structured plan |
+| **build** | `./loop.sh build` | You have a plan and want to execute it |
+| **plan-work** | `./loop.sh plan-work` | Prototyping, no specs yet, iterative work |
+
+### Typical Flow
 
 ```bash
-# Copy improved agents back to template
-cp .ai/agents/new-agent.md /path/to/ai-workflow/agents/
+# 1. Write specs
+vim specs/my-feature.md
 
-# Commit and push template changes
-cd /path/to/ai-workflow
-git add . && git commit -m "feat: add new-agent"
-git push
+# 2. Create plan from specs
+./loop.sh plan
+
+# 3. Review and edit the plan
+vim IMPLEMENTATION_PLAN.md
+
+# 4. Execute the plan
+./loop.sh build
+
+# 5. Review results
+git log --oneline
+cat IMPLEMENTATION_PLAN.md
 ```
 
 ---
@@ -226,8 +346,25 @@ git push
 - Disable unused MCPs and plugins
 - Use smaller models for simple tasks (see `rules/performance.md`)
 - Compact context regularly
+- Keep AGENTS.md under 80 lines
 
 ### AI doesn't follow the rules
 - Ensure rules are in the correct location for your tool
 - Rules should be concise - avoid walls of text
 - The most important rules should be at the top of each file
+
+### Autonomous loop runs but doesn't make progress
+- Check `sessions/` for raw logs
+- Review the prompt - is it clear enough?
+- Review IMPLEMENTATION_PLAN.md - are tasks specific and small enough?
+- Check AGENTS.md - does it have the right commands?
+
+### Autonomous loop stops early
+- Check max iterations (default: 25, increase with `./loop.sh build 50`)
+- Check if all tasks are marked `[x]` in IMPLEMENTATION_PLAN.md
+- Review the last session log for errors
+
+### Claude CLI not found
+- Install: `npm install -g @anthropic-ai/claude-code`
+- Verify: `claude --version`
+- Check your PATH if installed but not found
