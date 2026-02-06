@@ -32,6 +32,10 @@ generated/
 .claude/sessions/
 .AI/sessions/
 
+# Autonomous loop session logs
+sessions/*.log
+sessions/*.md
+
 # Test coverage
 coverage/
 playwright-report/

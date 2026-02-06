@@ -13,12 +13,20 @@
 - Database: [e.g., PostgreSQL, Prisma ORM]
 - Testing: [e.g., Vitest, Playwright]
 
-## Development Workflow
+## Development Modes
 
+### Interactive Mode (default in Cursor)
 1. Plan first - Break down features into steps before coding
 2. TDD - Write tests first (RED), implement (GREEN), refactor (IMPROVE)
 3. Review - Check code quality and security after changes
 4. Commit - Use conventional commits (feat:, fix:, refactor:, etc.)
+
+### Autonomous Mode (loop.sh - Claude Code headless)
+For long-running autonomous tasks, use the loop script:
+- `./loop.sh plan` - Generate implementation plan from specs/
+- `./loop.sh build` - Execute tasks from IMPLEMENTATION_PLAN.md
+- `./loop.sh plan-work` - Hybrid: plan + build in one loop
+See README.md for full documentation.
 
 ## Code Style
 
@@ -73,3 +81,12 @@ Before any commit:
 - e2e-runner.md - E2E testing
 - refactor-cleaner.md - Dead code cleanup
 - doc-updater.md - Documentation maintenance
+
+## Autonomous Loop Files
+
+- loop.sh - The outer loop script (plan/build/plan-work modes)
+- prompts/ - Prompt templates for autonomous mode
+- specs/ - Feature requirements (input for planning)
+- sessions/ - Auto-generated session logs
+- templates/AGENTS.md - Operational brief template
+- templates/IMPLEMENTATION_PLAN.md - Plan template
