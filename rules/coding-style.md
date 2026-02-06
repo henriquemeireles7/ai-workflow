@@ -1,0 +1,47 @@
+# Coding Style Guidelines
+
+## General Principles
+
+- **Readability over cleverness** - Code is read far more than it is written
+- **Single Responsibility** - Functions do one thing well
+- **Immutability** - Prefer `const`, spread operators, `.map()` over mutation
+- **Small files** - Target 200-400 lines per file, never exceed 800
+- **Small functions** - Target <50 lines, extract when >30
+
+## Naming Conventions
+
+- **Variables/Functions**: camelCase (`getUserName`, `isActive`)
+- **Classes/Types/Interfaces**: PascalCase (`UserProfile`, `ApiResponse`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_RETRIES`, `API_BASE_URL`)
+- **Files**: kebab-case (`user-profile.ts`, `api-client.ts`)
+- **Directories**: kebab-case (`user-management/`, `api-routes/`)
+
+## TypeScript Rules
+
+- **No `any`** - Use `unknown` for external data, then validate/narrow
+- **Explicit return types** on exported functions
+- **Strict mode** always enabled
+- **Interface over type** for object shapes (extensible)
+- **Type over interface** for unions, intersections, utility types
+
+## Code Organization
+
+```
+src/
+├── app/           # Framework routes/pages
+├── components/    # Reusable UI components
+├── features/      # Feature-specific modules
+├── hooks/         # Custom hooks
+├── lib/           # Utilities, clients, helpers
+├── types/         # Shared type definitions
+└── test/          # Test utilities and setup
+```
+
+## Anti-Patterns to Avoid
+
+- No emojis in code or comments
+- No `console.log` in production code (use proper logging)
+- No hardcoded values (use constants or environment variables)
+- No deeply nested code (>4 levels of nesting)
+- No god objects/functions that do too many things
+- No commented-out code (use git history instead)
